@@ -1,0 +1,13 @@
+{
+  "model": "outputs/qwen2.5_0.5b_industrial_sft/final_checkpoint",
+  "dataset": "Industrial_and_Scientific",
+  "split": "test",
+  "num_samples": 4533,
+  "num_beams": 50,
+  "max_new_tokens": 256,
+  "invalid_prediction_count": 0,
+  "HR@5": 0.08360909,
+  "NDCG@5": 0.06603903,
+  "HR@10": 0.11184646,
+  "NDCG@10": 0.07512756
+}
