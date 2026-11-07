@@ -20,7 +20,6 @@ import transformers
 from torch.optim.lr_scheduler import LambdaLR
 import json
 import torch.nn as nn
-import bitsandbytes as bnb
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from data import D3Dataset, SFTData, SidSFTDataset, SidItemFeatDataset, FusionSeqRecDataset, PreferenceSFTDataset, UserPreference2sidSFTDataset, TitleHistory2SidSFTDataset
 import random
