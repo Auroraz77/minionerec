@@ -1,0 +1,28 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B",
+  "model_path": "/root/autodl-tmp/MiniOneRec/models/Qwen2.5-0.5B",
+  "dataset": "Industrial_and_Scientific",
+  "batch_size": 128,
+  "micro_batch_size": 4,
+  "gradient_accumulation_steps": 32,
+  "cutoff_len": 512,
+  "precision": "bf16",
+  "training": "full_parameter_sft",
+  "num_epochs": 10,
+  "early_stopping_patience": 3,
+  "learning_rate": 0.0003,
+  "seed": 42,
+  "gpu": "NVIDIA GeForce RTX 4090 24GB",
+  "started_utc": "2026-10-16T05:15:35.144442+00:00",
+  "output_dir": "/root/autodl-tmp/MiniOneRec/outputs/qwen2.5_0.5b_industrial_sft",
+  "git_commit": "5f4f733cfda387f7f6f8f158db0d300eed9471c6",
+  "sha256": {
+    "sft.py": "38438d24afb0e2668492b651400d1caee83d91512167ade27d4907f20cd9947c",
+    "data.py": "58af8773f0a33ea79312cbb229c6f9b27db065019443992277a495c0c8d60869",
+    "scripts/train_industrial_sft.sh": "2546f434e7039461a5d32d5603c327a60b0f3d5493b46359c1bfbaa1f375831a",
+    "data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv": "da5f2af4f5047e18023dd4792f65a48bd7c8eab90447dd682fb48ca255d25f8c",
+    "data/Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv": "12bbb02bced0bd754a8b4e0f9ca4086416e30d12b0b73a2c95e7b195dd67385a",
+    "data/Amazon/index/Industrial_and_Scientific.index.json": "53f1aefbe8b8aa774326c122606c6525300c5a325e7b78817739d465aeb335f8",
+    "data/Amazon/index/Industrial_and_Scientific.item.json": "937600c7a03652f55864a1d12d6e9fe8ca3e24ecc4e255a88216b25c5f949496"
+  }
+}

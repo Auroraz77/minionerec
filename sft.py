@@ -147,7 +147,7 @@ def train(
     tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.padding_side = "left"
     
-    if sid_index_path and os.path.exists(sid_index_path):
+l    if sid_index_path and os.path.exists(sid_index_path):
         print(f"Loading index from {sid_index_path}")
         token_extender = TokenExtender(
             data_path=os.path.dirname(sid_index_path),
@@ -227,6 +227,7 @@ def train(
     trainer = transformers.Trainer(
         # deepspeed=deepspeed,
         model=model,
+        processing_class=tokenizer,
         train_dataset=hf_train_dataset,
         eval_dataset=hf_val_dataset,
         args=transformers.TrainingArguments(
@@ -250,7 +251,7 @@ def train(
             load_best_model_at_end=True,
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,
-            report_to=None,
+            report_to="none",
         ),
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
@@ -260,8 +261,16 @@ def train(
     )
     model.config.use_cache = False
     
-    trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+    train_result = trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+    trainer.log_metrics("train", train_result.metrics)
+    trainer.save_metrics("train", train_result.metrics)
+    trainer.save_state()
     trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
+
+    eval_metrics = trainer.evaluate(metric_key_prefix="eval_final")
+    trainer.log_metrics("eval_final", eval_metrics)
+    trainer.save_metrics("eval_final", eval_metrics)
     
     output_dir = os.path.join(output_dir, "final_checkpoint")
     trainer.model.save_pretrained(output_dir)

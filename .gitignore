@@ -3,4 +3,6 @@ __pycache__/
 /.venv-sid/
 /outputs/sid/
 /models/
-/outputs/
+.cache/
+models/
+outputs/
