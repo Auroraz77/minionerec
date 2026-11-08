@@ -46,26 +46,26 @@ class ConstrainedLogitsProcessor(LogitsProcessor):
         scores = torch.nn.functional.log_softmax(scores, dim=-1)
         mask = torch.full_like(scores, float('-inf'))
             
-        for batch_id, beam_sent in enumerate(input_ids.view(-1, self._num_beams, input_ids.shape[-1])):
-            for beam_id, sent in enumerate(beam_sent):
-                if self.count == 0:
-                    hash_key = sent[-self.prefix_index:]
-                else:
-                    hash_key=sent[-self.count:]
-                hash_key = hash_key.tolist()
-                prefix_allowed_tokens = self._prefix_allowed_tokens_fn(batch_id, hash_key)
-
-                if len(prefix_allowed_tokens) == 0:
-                    warnings.warn(
-                        f"No valid tokens found for hash_key {hash_key} at step {self.count}. "
-                        f"This indicates the model generated an unexpected token. "
-                    )
-                    # Force EOS token to end invalid sequence
-                    if self.eos_token_id is not None:
-                        mask[batch_id * self._num_beams + beam_id, self.eos_token_id] = 0
-                    continue 
-                
-                mask[batch_id * self._num_beams + beam_id, prefix_allowed_tokens] = 0
+        # Copy prefixes once per decoding step instead of synchronizing CUDA
+        # separately for every beam. Apply all allowed coordinates in one write.
+        width = self.prefix_index if self.count == 0 else self.count
+        prefixes = input_ids[:, -width:].tolist()
+        rows, tokens = [], []
+        for row, hash_key in enumerate(prefixes):
+            allowed = self._prefix_allowed_tokens_fn(row // self._num_beams, hash_key)
+            if len(allowed) == 0:
+                warnings.warn(
+                    f"No valid tokens found for hash_key {hash_key} at step {self.count}. "
+                    f"This indicates the model generated an unexpected token. "
+                )
+                if self.eos_token_id is not None:
+                    allowed = [self.eos_token_id]
+            rows.extend([row] * len(allowed))
+            tokens.extend(allowed)
+        if rows:
+            row_ids = torch.tensor(rows, dtype=torch.long, device=scores.device)
+            token_ids = torch.tensor(tokens, dtype=torch.long, device=scores.device)
+            mask[row_ids, token_ids] = 0
 
         self.count += 1
 
